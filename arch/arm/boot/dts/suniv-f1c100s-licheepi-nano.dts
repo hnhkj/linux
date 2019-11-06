@@ -104,7 +104,7 @@
 		
 		partition@c00000 {
 			label = "overlayfs";
-			reg = <0xc00000 0x400000>
+			reg = <0xc00000 0x400000>;
 		};
         };
     };	
