@@ -81,31 +81,26 @@
 
             	partition@0 {
                 	label = "u-boot";
-                	reg = <0x000000 0x70000>;
+                	reg = <0x000000 0x100000>;
                 	read-only;
             	};
 
-            	partition@70000 {
+            	partition@100000 {
                 	label = "dtb";
-                	reg = <0x70000 0x10000>;
+                	reg = <0x100000 0x10000>;
                 	read-only;
             	};
 
-            	partition@80000 {
+            	partition@110000 {
                 	label = "kernel";
-                	reg = <0x80000 0x400000>;
+                	reg = <0x110000 0x400000>;
                 	read-only;
             	};
 
-            	partition@480000 {
+            	partition@510000 {
                 	label = "rootfs";
-                	reg = <0x480000 0x780000>;
+                	reg = <0x510000 0xAF0000>;
             	};
-		
-		partition@c00000 {
-			label = "overlayfs";
-			reg = <0xc00000 0x400000>;
-		};
         };
     };	
 };
