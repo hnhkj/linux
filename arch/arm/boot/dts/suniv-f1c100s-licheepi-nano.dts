@@ -133,3 +133,12 @@
 	usb0_id_det-gpio = <&pio 4 2 GPIO_ACTIVE_HIGH>; /* PE2 */
 	status = "okay";
 };
+
+&i2c0 {
+	status = "okay";
+
+	ns2009: ns2009@48 {
+		compatible = "nsiway, ns2009";
+		reg = <0x48>;
+	};
+};

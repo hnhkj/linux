@@ -107,6 +107,19 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
+		
+		i2c0: i2c@1C27000 {
+			compatible = "allwinner,sun6i-a31-i2c";
+			reg = <0x01C27000 0x400>;
+			interrupts = <7>;
+			clocks = <&ccu CLK_BUS_I2C0>;
+			resets = <&ccu RST_BUS_I2C0>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2c0_pins>;
+			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
 
 		tcon0: lcd-controller@1c0c000 {
 			compatible = "allwinner,suniv-tcon";
@@ -237,6 +250,11 @@
 			mmc0_pins: mmc0-pins {
 				pins = "PF0", "PF1", "PF2", "PF3", "PF4", "PF5";
 				function = "mmc0";
+			};
+
+			i2c0_pins: i2c0 {
+				pins = "PE11", "PE12";
+				function = "i2c0";
 			};
 		};
 
