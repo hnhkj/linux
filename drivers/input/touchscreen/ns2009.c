@@ -174,7 +174,6 @@ static int ns2009_ts_probe(struct i2c_client *client,
 	struct device *dev = &client->dev;
 	int error;
 
-	printk("ns2009_ts_probe\n");
 	if (!i2c_check_functionality(client->adapter,
 				     I2C_FUNC_I2C |
 				     I2C_FUNC_SMBUS_READ_I2C_BLOCK |
