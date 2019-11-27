@@ -1077,6 +1077,19 @@ config TOUCHSCREEN_TSC2007_IIO
 	  or ambient light monitoring), temperature and raw input
 	  values.
 
+config TOUCHSCREEN_NS2009
+	tristate "Nsiway NS2009 touchscreen"
+	depends on I2C
+	select INPUT_POLLDEV
+	help
+	  Say Y here to enable Nsiway NS2009 resistive touchscreen
+	  controller support.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called ns2009.
+
 config TOUCHSCREEN_W90X900
 	tristate "W90P910 touchscreen driver"
 	depends on ARCH_W90X900
