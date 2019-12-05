@@ -1,6 +1,9 @@
 menu "Allwinner SoC Audio support"
 	depends on ARCH_SUNXI || COMPILE_TEST
 
+config SND_SOC_SUNXI_RW
+	bool
+
 config SND_SUN4I_CODEC
 	tristate "Allwinner A10 Codec Support"
 	select SND_SOC_GENERIC_DMAENGINE_PCM
@@ -45,4 +48,13 @@ config SND_SUN4I_SPDIF
 	help
 	  Say Y or M to add support for the S/PDIF audio block in the Allwinner
 	  A10 and affiliated SoCs.
+
+config SND_SOC_INTERNAL_SUNIVW1P1_AUDIOCODEC
+	tristate "ASoC support for sunivw1p1 audiocodec"
+#	depends on ARCH_SUNIVW1P1
+	select SND_SOC_SUNXI_RW
+	help
+	  Say Y or M if you want to add support for codecs attached to the
+	  AUDIOCODEC interface.
+
 endmenu
