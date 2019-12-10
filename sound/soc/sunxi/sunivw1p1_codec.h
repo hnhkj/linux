@@ -18,7 +18,7 @@
 #define AC_DAC_DPC		    0x00
 #define AC_DAC_FIFOC	    0x04
 #define AC_DAC_FIFOS	    0x08
-#define AC_ADC_TXDATA	    0x0c
+#define AC_ADC_TXDATA	    0x0c	//  AC_DAC_TXDATA modify define reference datasheets.
 #define AC_ADC_FIFOC	    0x10
 #define AC_ADC_FIFOS	    0x14
 #define AC_ADC_RXDATA	    0x18

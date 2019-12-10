@@ -30,7 +30,7 @@
 #include <linux/of_device.h>
 #include <linux/pm.h>
 #include <linux/of_gpio.h>
-#include <linux/sys_config.h>
+//#include <linux/sys_config.h>
 #include "sunivw1p1_codec.h"
 #include "sunxi_rw_func.h"
 
@@ -76,7 +76,7 @@ static struct label reg_labels[]={
     LABEL(AC_ADC_FIFOC),
     LABEL(AC_ADC_FIFOS),
     LABEL(AC_ADC_RXDATA),
-    LABEL(AC_ADC_TXDATA),
+    LABEL(AC_ADC_TXDATA),// AC_DAC_TXDATA correct
     LABEL(AC_DAC_CNT),
     LABEL(AC_ADC_CNT),
 	LABEL(AC_DAC_DG),
@@ -693,7 +693,7 @@ static int codec_set_dai_fmt(struct snd_soc_dai *codec_dai,
 static int codec_set_bias_level(struct snd_soc_codec *codec,
 				      enum snd_soc_bias_level level)
 {
-	codec->dapm.bias_level = level;
+	//codec->dapm.bias_level = level;
 	return 0;
 }
 
@@ -766,9 +766,9 @@ int audio_gpio_iodisable(u32 gpio)
 {
 	char pin_name[8];
 	u32 config,ret;
-	sunxi_gpio_to_name(gpio, pin_name);
-	config = (((7) << 16) | (0 & 0xFFFF));
-	ret = pin_config_set(SUNXI_PINCTRL, pin_name, config);
+//	sunxi_gpio_to_name(gpio, pin_name);
+//	config = (((7) << 16) | (0 & 0xFFFF));
+//	ret = pin_config_set(SUNXI_PINCTRL, pin_name, config);
 	return ret;
 }
 
@@ -989,14 +989,17 @@ static int __init sunxi_internal_codec_probe(struct platform_device *pdev)
 		ret = -EINVAL;
 		goto err0;
 	}
-	sunxi_internal_codec = devm_kzalloc(&pdev->dev, sizeof(struct sunxi_codec), GFP_KERNEL);
+
+	printk("sunxi_internal_codec_probe: %s,%x\n",node->full_name,node->properties->value);
+
+	sunxi_internal_codec = devm_kzalloc(&pdev->dev, sizeof(struct sunxi_codec), GFP_KERNEL); // 分配空间
 	if (!sunxi_internal_codec) {
 		dev_err(&pdev->dev, "Can't allocate sunxi_codec\n");
 		ret = -ENOMEM;
 		goto err0;
 	}
 	dev_set_drvdata(&pdev->dev, sunxi_internal_codec);
-	device = of_match_device(sunxi_codec_of_match, &pdev->dev);
+	device = of_match_device(sunxi_codec_of_match, &pdev->dev);	//设备树compatible节点查找
 	if (!device) {
 		ret = -ENODEV;
 		goto err1;
@@ -1029,8 +1032,8 @@ static int __init sunxi_internal_codec_probe(struct platform_device *pdev)
 		}
 	}
 #endif
-	sunxi_internal_codec->pllclk = of_clk_get(node, 0);
-	sunxi_internal_codec->codecclk = of_clk_get(node, 1);
+	sunxi_internal_codec->pllclk = of_clk_get(node, 0);		// 时钟
+	sunxi_internal_codec->codecclk = of_clk_get(node, 1);	// 时钟
 
 	if (IS_ERR(sunxi_internal_codec->pllclk)){
 		dev_err(&pdev->dev, "[audio-cpudai]Can't get audio pll clock\n");
@@ -1052,7 +1055,7 @@ static int __init sunxi_internal_codec_probe(struct platform_device *pdev)
 	} else {
 		codec_digitaladress = sunxi_internal_codec->codec_dbase;
 	}
-	
+	printk("codec dbase %X\n",codec_digitaladress);
 #if 0
 	/*initial speaker gpio */
 	spk_gpio.gpio = of_get_named_gpio_flags(node, "gpio-spk", 0, (enum of_gpio_flags *)&config);
@@ -1114,7 +1117,7 @@ static int __init sunxi_internal_codec_probe(struct platform_device *pdev)
 		sunxi_internal_codec->pa_sleep_time = temp_val;
 	}
 
-	pr_debug("headphonevol:%d, spkervol:%d, maingain:%d, pa_sleep_time:%d\n",
+	/*pr_debug*/printk("headphonevol:%d, spkervol:%d, maingain:%d, pa_sleep_time:%d\n",
 		sunxi_internal_codec->gain_config.headphonevol,
 		sunxi_internal_codec->gain_config.spkervol,
 		sunxi_internal_codec->gain_config.maingain,

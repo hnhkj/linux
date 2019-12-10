@@ -57,4 +57,26 @@ config SND_SOC_INTERNAL_SUNIVW1P1_AUDIOCODEC
 	  Say Y or M if you want to add support for codecs attached to the
 	  AUDIOCODEC interface.
 
+config SND_SOC_SUNIVW1P1_CODEC_CPU_DAI
+	tristate "ASoC support for sunivw1p1 internal-codec cpudai"
+#	depends on ARCH_SUNIVW1P1
+	select SND_SOC_SUNXI_RW
+	help
+	  Say Y or M if you want to add support for codecs attached to the
+	  INTERNAL I2S interface.
+
+config SND_SOC_SUNIVW1P1_CPU_DAUDIO
+	tristate "ASoC support for sunivw1p1 cpu IIS(PCM)"
+	select SND_SOC_SUNXI_TDM
+	help
+ 	  Say Y or M if you want to add the cpu iis interface.
+
+config SND_SOC_SUNIVW1P1_AUDIO_CODEC_MACHINE
+	tristate "ASoC support for sunivw1p1 audiocodec machine"
+#	depends on ARCH_SUNIVW1P1
+	select SND_SOC_SUNXI_RW
+	help
+	  Say Y or M if you want to add support for codecs attached to the
+	  AUDIOCODEC MACHEINE interface.
+
 endmenu
