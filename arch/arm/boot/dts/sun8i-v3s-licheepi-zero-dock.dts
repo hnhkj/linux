@@ -111,3 +111,14 @@
 		voltage = <800000>;
 	};
 };
+&spi0 {
+        status = "okay";
+
+        w25q256: w25q256@0 {
+                compatible = "jedec,spi-nor";
+                reg = <0x0>;
+                spi-max-frequency = <50000000>;
+                #address-cells = <1>;
+                #size-cells = <1>;
+        };
+ };
