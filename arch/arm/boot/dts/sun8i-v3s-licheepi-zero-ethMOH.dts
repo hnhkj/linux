@@ -60,6 +60,10 @@
 	};
 };
 
+&panel {
+	compatible = "qiaodian,qd43003c0-40", "simple-panel";
+};
+
 &codec {
 	allwinner,audio-routing =
 		"Headphone", "HP",
