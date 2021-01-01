@@ -346,6 +346,11 @@ static int sun4i_codec_prepare_capture(struct snd_pcm_substream *substream,
 				   0x3 << 8,
 				   0x1 << 8);
 
+	/* Fill most significant bits with valid data MSB */
+	regmap_field_update_bits(scodec->reg_adc_fifoc,
+				 BIT(SUN4I_CODEC_ADC_FIFOC_RX_FIFO_MODE),
+				 BIT(SUN4I_CODEC_ADC_FIFOC_RX_FIFO_MODE));
+
 	return 0;
 }
 
@@ -484,30 +489,6 @@ static int sun4i_codec_hw_params_capture(struct sun4i_codec *scodec,
 		regmap_field_update_bits(scodec->reg_adc_fifoc,
 					 BIT(SUN4I_CODEC_ADC_FIFOC_MONO_EN),
 					 0);
-
-	/* Set the number of sample bits to either 16 or 24 bits */
-	if (hw_param_interval(params, SNDRV_PCM_HW_PARAM_SAMPLE_BITS)->min == 32) {
-		regmap_field_update_bits(scodec->reg_adc_fifoc,
-				   BIT(SUN4I_CODEC_ADC_FIFOC_RX_SAMPLE_BITS),
-				   BIT(SUN4I_CODEC_ADC_FIFOC_RX_SAMPLE_BITS));
-
-		regmap_field_update_bits(scodec->reg_adc_fifoc,
-				   BIT(SUN4I_CODEC_ADC_FIFOC_RX_FIFO_MODE),
-				   0);
-
-		scodec->capture_dma_data.addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
-	} else {
-		regmap_field_update_bits(scodec->reg_adc_fifoc,
-				   BIT(SUN4I_CODEC_ADC_FIFOC_RX_SAMPLE_BITS),
-				   0);
-
-		/* Fill most significant bits with valid data MSB */
-		regmap_field_update_bits(scodec->reg_adc_fifoc,
-				   BIT(SUN4I_CODEC_ADC_FIFOC_RX_FIFO_MODE),
-				   BIT(SUN4I_CODEC_ADC_FIFOC_RX_FIFO_MODE));
-
-		scodec->capture_dma_data.addr_width = DMA_SLAVE_BUSWIDTH_2_BYTES;
-	}
 
 	return 0;
 }
@@ -781,7 +762,7 @@ static const struct snd_soc_dapm_route sun4i_codec_codec_dapm_routes[] = {
 	{ "Mic1", NULL, "VMIC" },
 };
 
-static const struct snd_soc_codec_driver sun4i_codec_codec = {
+static struct snd_soc_codec_driver sun4i_codec_codec = {
 	.component_driver = {
 		.controls		= sun4i_codec_controls,
 		.num_controls		= ARRAY_SIZE(sun4i_codec_controls),
@@ -1077,7 +1058,6 @@ static const struct snd_soc_dapm_route sun6i_codec_codec_dapm_routes[] = {
 	{ "Line Out Source Playback Route", "Stereo", "Left Mixer" },
 	{ "Line Out Source Playback Route", "Stereo", "Right Mixer" },
 	{ "Line Out Source Playback Route", "Mono Differential", "Left Mixer" },
-	{ "Line Out Source Playback Route", "Mono Differential", "Right Mixer" },
 	{ "LINEOUT", NULL, "Line Out Source Playback Route" },
 
 	/* ADC Routes */
@@ -1087,7 +1067,7 @@ static const struct snd_soc_dapm_route sun6i_codec_codec_dapm_routes[] = {
 	{ "Right ADC", NULL, "Right ADC Mixer" },
 };
 
-static const struct snd_soc_codec_driver sun6i_codec_codec = {
+static struct snd_soc_codec_driver sun6i_codec_codec = {
 	.component_driver = {
 		.controls		= sun6i_codec_codec_widgets,
 		.num_controls		= ARRAY_SIZE(sun6i_codec_codec_widgets),
@@ -1115,7 +1095,7 @@ static const struct snd_soc_dapm_widget sun8i_a23_codec_codec_widgets[] = {
 
 };
 
-static const struct snd_soc_codec_driver sun8i_a23_codec_codec = {
+static struct snd_soc_codec_driver sun8i_a23_codec_codec = {
 	.component_driver = {
 		.controls		= sun8i_a23_codec_codec_controls,
 		.num_controls		= ARRAY_SIZE(sun8i_a23_codec_codec_controls),
@@ -1190,8 +1170,9 @@ static int sun4i_codec_spk_event(struct snd_soc_dapm_widget *w,
 {
 	struct sun4i_codec *scodec = snd_soc_card_get_drvdata(w->dapm->card);
 
-	gpiod_set_value_cansleep(scodec->gpio_pa,
-				 !!SND_SOC_DAPM_EVENT_ON(event));
+	if (scodec->gpio_pa)
+		gpiod_set_value_cansleep(scodec->gpio_pa,
+					 !!SND_SOC_DAPM_EVENT_ON(event));
 
 	return 0;
 }
@@ -1434,7 +1415,7 @@ static const struct regmap_config sun8i_v3s_codec_regmap_config = {
 	.reg_bits	= 32,
 	.reg_stride	= 4,
 	.val_bits	= 32,
-	.max_register	= SUN8I_H3_CODEC_ADC_DBG,
+	.max_register	= SUN6I_CODEC_HMIC_DATA,
 };
 
 struct sun4i_codec_quirks {
@@ -1485,6 +1466,16 @@ static const struct sun4i_codec_quirks sun8i_a23_codec_quirks = {
 	.has_reset	= true,
 };
 
+static const struct sun4i_codec_quirks sun8i_v3s_codec_quirks = {
+	.regmap_config	= &sun8i_v3s_codec_regmap_config,
+	.codec		= &sun8i_a23_codec_codec,
+	.create_card	= sun8i_v3s_codec_create_card,
+	.reg_adc_fifoc	= REG_FIELD(SUN6I_CODEC_ADC_FIFOC, 0, 31),
+	.reg_dac_txdata	= SUN8I_H3_CODEC_DAC_TXDATA,
+	.reg_adc_rxdata	= SUN6I_CODEC_ADC_RXDATA,
+	.has_reset	= true,
+};
+
 static const struct sun4i_codec_quirks sun8i_h3_codec_quirks = {
 	.regmap_config	= &sun8i_h3_codec_regmap_config,
 	/*
@@ -1494,20 +1485,6 @@ static const struct sun4i_codec_quirks sun8i_h3_codec_quirks = {
 	 */
 	.codec		= &sun8i_a23_codec_codec,
 	.create_card	= sun8i_h3_codec_create_card,
-	.reg_adc_fifoc	= REG_FIELD(SUN6I_CODEC_ADC_FIFOC, 0, 31),
-	.reg_dac_txdata	= SUN8I_H3_CODEC_DAC_TXDATA,
-	.reg_adc_rxdata	= SUN6I_CODEC_ADC_RXDATA,
-	.has_reset	= true,
-};
-
-static const struct sun4i_codec_quirks sun8i_v3s_codec_quirks = {
-	.regmap_config	= &sun8i_v3s_codec_regmap_config,
-	/*
-	 * TODO The codec structure should be split out, like
-	 * H3, when adding digital audio processing support.
-	 */
-	.codec		= &sun8i_a23_codec_codec,
-	.create_card	= sun8i_v3s_codec_create_card,
 	.reg_adc_fifoc	= REG_FIELD(SUN6I_CODEC_ADC_FIFOC, 0, 31),
 	.reg_dac_txdata	= SUN8I_H3_CODEC_DAC_TXDATA,
 	.reg_adc_rxdata	= SUN6I_CODEC_ADC_RXDATA,
@@ -1592,8 +1569,7 @@ static int sun4i_codec_probe(struct platform_device *pdev)
 	}
 
 	if (quirks->has_reset) {
-		scodec->rst = devm_reset_control_get_exclusive(&pdev->dev,
-							       NULL);
+		scodec->rst = devm_reset_control_get(&pdev->dev, NULL);
 		if (IS_ERR(scodec->rst)) {
 			dev_err(&pdev->dev, "Failed to get reset control\n");
 			return PTR_ERR(scodec->rst);
@@ -1674,6 +1650,7 @@ static int sun4i_codec_probe(struct platform_device *pdev)
 		goto err_unregister_codec;
 	}
 
+	platform_set_drvdata(pdev, card);
 	snd_soc_card_set_drvdata(card, scodec);
 
 	ret = snd_soc_register_card(card);

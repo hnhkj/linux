@@ -270,6 +270,22 @@
 			reg = <0x01c20ca0 0x20>;
 		};
 
+		codec:codec@0x01c23c00 {
+			compatible = "allwinner,sunxi-internal-codec";
+			reg = <0x0 0x01c23c00 0x0 0x9c>;/*digital baseadress*/
+//			clocks = <&clk_pll_audio>, <&clk_codec>;
+			clocks = <&ccu CLK_BUS_CODEC>, <&ccu CLK_CODEC>;
+			/*gpio-spk=<&pio 6 7 0>;*/
+//			gpio-spk = <&pio PB 1 1 1 1 1>;
+
+			headphonevol =  <0x3b>;
+			spkervol =  <0x1b>;
+			maingain =  <0x4>;
+			hp_dirused = <0x0>;
+			pa_sleep_time = <0x15e>;
+			status = "okay";
+		};
+
 		uart0: serial@1c25000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x01c25000 0x400>;
